@@ -317,13 +317,14 @@ void WebContents::DidGetResourceResponseStart(
   v8::HandleScope handle_scope(isolate);
   mate::Dictionary response_headers(isolate, v8::Object::New(isolate));
 
-  net::HttpResponseHeaders* headers = details.response_info.headers.get();
-  void* iter = nullptr;
-  std::string key;
-  std::string value;
-  while (headers && headers->EnumerateHeaderLines(&iter, &key, &value))
-    response_headers.Set(base::StringToLowerASCII(key),
-                         base::StringToLowerASCII(value));
+  if (details.headers) {
+    void* iter = nullptr;
+    std::string key;
+    std::string value;
+    while (details.headers->EnumerateHeaderLines(&iter, &key, &value))
+      response_headers.Set(base::StringToLowerASCII(key),
+                           base::StringToLowerASCII(value));
+  }
 
   Emit("did-get-response-details",
        details.socket_address.IsEmpty(),
